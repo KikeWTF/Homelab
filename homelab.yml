@@ -1,0 +1,48 @@
+---
+# --- | Proxmox | ---
+
+- name: Download and create VM templates
+  hosts: proxmox
+  roles:
+    - role: proxmox
+      state: present
+  vars_prompt:
+    - name: ansible_user
+      prompt: "[?] Enter the username for the Proxmox server"
+      private: no
+      default: root
+    - name: ansible_password
+      prompt: "[?] Enter the password for the Proxmox server"
+      private: yes
+  tags:
+    - provision
+    - provision-proxmox
+    - provision-templates
+
+# --- | Authentication | ---
+
+- name: Install and configure FreeIPA server
+  hosts: authentication
+  roles:
+    - role: services/ipa
+      state: present
+  tags:
+    - install
+    - install-ipa
+
+- name: Only configure FreeIPA server
+  hosts: authentication
+  roles:
+    - role: services/ipa
+      state: configured
+  tags:
+    - configure-ipa
+
+- name: Uninstall FreeIPA server
+  hosts: authentication
+  roles:
+    - role: services/ipa
+      state: absent
+  tags:
+    - uninstall
+    - uninstall-ipa
